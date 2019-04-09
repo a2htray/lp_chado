@@ -40,6 +40,8 @@ WWW- | TODO |
 
 各个模块与模块之间相互依赖 (`ps: 其声称的模块化思想，有待考查，这不是模块化思想`)。
 
+[数据字典](./DICT.md)
+
 ### 安装
 
 本机环境，以 `Docker` 为例
@@ -73,6 +75,23 @@ $ psql -h localhost -d postgres -U postgres -p 5432 -a -q -f /opt/chado/sql/chad
 
 (`ps: 目前的想法是希望通过 PHP 框架 Laravel 的包开发模式进行项目的集成，故后面会着手 Chado 相关包的开发。`)
 
+### 格式
+
+* fasta : 序列的格式
+
+### 术语
+
+* exon 外显子
+* 5'UTR 和 3'UTR : 不行使具体功能，起到调控作用
+* 转录: Gene 变成 mRNA，Gene 可转变多个 mRNA，RNA 只能来自一个 Gene
+* 翻译: RNA 变成 Protein，RNA 和 Protein 一一对应
+* mRNA : TODO
+* rRNA : TODO
+* tRNA : TODO
+
+一条染色体是一个 DNA 分子
+
+* 表达量 : 不同组织上 RNA 表达的
 
 ### 资源
 
