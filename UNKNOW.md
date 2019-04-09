@@ -9,3 +9,15 @@
 
 * 有待解决
     * OWL-DL 格式转换成 OBO 格式
+
+
+
+## 2019-04-09
+
+* 05-Chado CV Module - GMOD.pdf
+    * The controlled vocabularies are chosen so that the contents do not overlap
+* 04-Chado Sequence Module - GMOD.pdf
+    * biological sequence features
+    * polypeptide molecule
+    * polymer
+    

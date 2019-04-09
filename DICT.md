@@ -140,6 +140,8 @@ is_relationshiptype | int | not null default 0 | indicate whether this cvterm is
 
 A relationship linking two cvterms. Each cvterm_relationship constitutes an edge in the graph defined by the collection of cvterms and cvterm_relationships. The meaning of the cvterm_relationship depends on the definition of the cvterm R refered to by type_id. However, in general the definitions are such that the statement "all SUBJs REL some OBJ" is true. The cvterm_relationship statement is about the subject, not the object. For example "insect wing part_of thorax".
 
+subject_id 表示主语信息，type_id 表示谓语信息，object_id 表示宾语信息，即 `什么是什么`，主要用于强调主语的关系
+
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 cvterm_relationship_id | bigserial | not null primary key | 自增主键 |
@@ -415,4 +417,3 @@ num_paths | - | - | 数量 |
 ### Module `Feature`
 
 #### Table `feature_relationship`
-
