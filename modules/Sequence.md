@@ -9,3 +9,20 @@ Chado 并不区分序列(`sequence`)和序列特征(`sequence feature`)。因为
 特征 `feature` 包含多种类，如 `gene, exon, transcript, regulatory region, chromosome, sequence variation, polypeptide, protein domain 和 cross-genome match regions`。
 
 特征类型由序列分类信息 [Sequence Ontology](http://www.sequenceontology.org/)) 决定。
+
+序列的类型，使用 CV 模块中的 cvterm 表的记录表示，在 feature 表中使用 type_id 指示。
+
+`SO Term` : `Sequence Ontology`
+
+`This column is optional, because the sequence of the feature may not be known`
+
+feature 表中的 `residues` 存储序列，其值可能为空(`上述所说`)，也可能指向其特性的序列。
+
+`The checksum is useful for checking if two or more features share the same sequence`
+
+利用字段 `checksum` 来比较两个序列是否相同，`residues`、`seqlen`、`checksum` 三个字段是相关的，并不是相互独立的。
+
+
+
+
+
