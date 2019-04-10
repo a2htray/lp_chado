@@ -27,6 +27,16 @@
     * [View `cv_cvterm_count_with_obs`](#view-cv_cvterm_count_with_obs)
     * [View `cv_link_count`](#view-cv_link_count)
     * [View `cv_path_count`](#view-cv_path_count)
+* [Module `Contact`](#module-contact)
+    * [Table `contact`](#table-contact)
+    * [Table `contactprop`](#table-contactprop)
+    * [Table `contact_relationship`](#table-contact_relationship)
+* [Module `pub`](#module-pub)
+    * [Table `pub`](#table-pub)
+    * [Table `pub_dbxref`](#table-pub_dbxref)
+    * [Table `pubauthor`](#table-pubauthor)
+    * [Table `pubprop`](#table-pubprop)
+    * [Table `pubauthor_contact`](#table-pubauthor_contact)
 
 ### Module `General`
 
@@ -447,3 +457,176 @@ num_paths | - | - | 数量 |
 ### Module `Feature`
 
 #### Table `feature_relationship`
+
+### Module `Contact`
+
+#### Table `contact`
+
+人员，组织，机构，团体记录表
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+contact_id | bigserial | not null/primary key | - |
+type_id | bigint | null/foreign key | 记录的类型，如一般人，实验室等 |
+name | varchar(255) | not null/unique | 名称 |
+description | varchar(255) | null | 描述信息 |
+
+* primary key (contact_id)
+* foreign key (type_id) references cvterm (cvterm_id)
+* constraint contact_c1 unique (name)
+
+#### Table `contactprop`
+
+联系记录的属性信息
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+contactprop_id | bigserial | primary key/not null | - |
+contact_id | bigint | NOT NULL/foreign key/index | 指向 contact 记录 |
+type_id | bigint | NOT NULL/foreign key/index | 属性的类型，`cvterm.cvterm_id` |
+value | text | - | 具体信息 |
+rank | integer | DEFAULT 0 NOT NULL | 权重、用于排序 |
+
+* CONSTRAINT contactprop_c1 UNIQUE (contact_id, type_id, rank),    
+* FOREIGN KEY (contact_id) REFERENCES contact(contact_id) ON DELETE CASCADE,
+* FOREIGN KEY (type_id) REFERENCES cvterm(cvterm_id) ON DELETE CASCADE
+* CREATE INDEX contactprop_idx1 ON contactprop USING btree (contact_id);
+* CREATE INDEX contactprop_idx2 ON contactprop USING btree (type_id);
+
+#### Table `contact_relationship`
+
+用于描述 contact 对象之间的关系表
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+contact_relationship_id | bigserial | not null/primary key | - |
+type_id | bigint | not null/foreign key | 关系的类型，`cvterm.cvterm_id` |
+subject_id | bigint | not null/foreign key | `contact.contact_id` |
+object_id | bigint | not null/foreign key | `contact.contact_id` |
+
+* primary key (contact_relationship_id)
+* foreign key (type_id) references cvterm (cvterm_id) on delete cascade INITIALLY DEFERRED,
+* foreign key (subject_id) references contact (contact_id) on delete cascade INITIALLY DEFERRED,
+* foreign key (object_id) references contact (contact_id) on delete cascade INITIALLY DEFERRED,
+* `constraint contact_relationship_c1 unique (subject_id,object_id,type_id)`
+* create index contact_relationship_idx1 on contact_relationship (type_id);
+* create index contact_relationship_idx2 on contact_relationship (subject_id);
+* create index contact_relationship_idx3 on contact_relationship (object_id);
+
+### Module `pub`
+
+有记载的出处，如文章、文档、个人的通信信息
+
+#### Table `pub`
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+pub_id | bigserial | not null/primary key | - |
+title | text | - | 描述性的标题 |
+volumetitle | text | - | 章节标题 |
+volume | varchar(255) | - | 章节 |
+series_name | varchar(255) | - | 系列名 |
+issue | varchar(255) | - | 解决的问题 |
+pyear | varchar(255) | - | 发表的年份 |
+pages | varchar(255) | - | 页码信息 |
+miniref | varchar(255) | - | - |
+uniquename | text | not null/unique - | - |
+type_id | bigint | not null/foreign key/index | 出版物的类型，`cvterm.cvterm_id` |
+is_obsolete | boolean | default 'false' | - |
+publisher | varchar(255) | - | 发表人 |
+pubplace | varchar(255) | - | 发表的地方 |
+
+* primary key (pub_id)
+* foreign key (type_id) references cvterm (cvterm_id) on delete cascade INITIALLY DEFERRED,
+* constraint pub_c1 unique (uniquename)
+* CREATE INDEX pub_idx1 ON pub (type_id)
+
+#### Table `pub_relationship`
+
+出版物之间的关系
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+pub_relationship_id | bigserial not null/primary key 
+subject_id | bigint | not null/foreign key | `pub.pub_id` |
+object_id | bigint | not null/foreign key | `pub.pub_id` |
+type_id | bigint | not null/foreign key | `pub.pub_id` |
+
+* primary key (pub_relationship_id)
+* foreign key (subject_id) references pub (pub_id) on delete cascade INITIALLY DEFERRED
+* foreign key (object_id) references pub (pub_id) on delete cascade INITIALLY DEFERRED
+* foreign key (type_id) references cvterm (cvterm_id) on delete cascade INITIALLY DEFERRED
+* constraint pub_relationship_c1 unique (subject_id,object_id,type_id)
+* create index pub_relationship_idx1 on pub_relationship (subject_id);
+* create index pub_relationship_idx2 on pub_relationship (object_id);
+* create index pub_relationship_idx3 on pub_relationship (type_id);
+
+#### Table `pub_dbxref`
+
+出版物的数据库信息，即文章的出外
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+pub_dbxref_id | bigserial | not null/primary | - |
+pub_id | bigint | not null/foreign key/index | `pub.pub_id` |
+dbxref_id | bigint | not null/foreign key/index | `dbxref.dbxref_id` |
+is_current | boolean | not null default 'true' | - |
+
+* primary key (pub_dbxref_id),
+* foreign key (pub_id) references pub (pub_id) on delete cascade INITIALLY DEFERRED,
+* foreign key (dbxref_id) references dbxref (dbxref_id) on delete cascade INITIALLY DEFERRED,
+* `constraint pub_dbxref_c1 unique (pub_id,dbxref_id)`
+* create index pub_dbxref_idx1 on pub_dbxref (pub_id);
+* create index pub_dbxref_idx2 on pub_dbxref (dbxref_id);
+
+#### Table `pubauthor`
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+pubauthor_id | bigserial | not null/primary key | - |
+pub_id | bigint | not null/foreign key | `pub.pub_id` |
+rank | int | not null | - | 权重 |
+editor | boolean | default 'false' | - | 是否是编辑 |
+surname | varchar(100) | not null | - | 姓 |
+givennames | varchar(100) | - | First name |
+suffix | varchar(100) | - | 前缀信息，如 Jr. Sr |
+
+* primary key (pubauthor_id),
+* foreign key (pub_id) references pub (pub_id) on delete cascade INITIALLY DEFERRED,
+* `constraint pubauthor_c1 unique (pub_id, rank)`
+
+#### Table `pubprop`
+
+出版物的属性记录
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+pubprop_id | bigserial | primary key/not null | - |
+pub_id | bigint | NOT NULL/foreign key/index | 指向 pub 记录，`pub.pub_id` |
+type_id | bigint | NOT NULL/foreign key/index | 属性的类型，`cvterm.cvterm_id` |
+value | text | - | 具体信息 |
+rank | integer | DEFAULT 0 NOT NULL | 权重、用于排序 |
+
+* constraint pubprop_c1 unique (pub_id,type_id,rank)    
+* foreign key (pub_id) references pub (pub_id) on delete cascade INITIALLY DEFERRED
+* foreign key (type_id) references cvterm (cvterm_id) on delete cascade INITIALLY DEFERRED
+* create index pubprop_idx1 on pubprop (pub_id);
+* create index pubprop_idx2 on pubprop (type_id);
+
+#### Table `pubauthor_contact`
+
+出版物作者的联系方式
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+pubauthor_contact_id | bigserial | primary key NOT NULL | - |
+contact_id | bigint | NOT NULL/foreign key/index | `contact.contact_id` |
+pubauthor_id | bigint | NOT NULL/foreign key/index | `pubauthor.pubauthor_id` |
+
+* `CONSTRAINT pubauthor_contact_c1 UNIQUE (contact_id, pubauthor_id)`
+* FOREIGN KEY (pubauthor_id) REFERENCES pubauthor(pubauthor_id) ON DELETE CASCADE
+* FOREIGN KEY (contact_id) REFERENCES contact(contact_id) ON DELETE CASCADE
+* CREATE INDEX pubauthor_contact_idx1 ON pubauthor USING btree (pubauthor_id)
+* CREATE INDEX pubauthor_contact_idx2 ON contact USING btree (contact_id)
+
+
