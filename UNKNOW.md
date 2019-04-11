@@ -18,3 +18,7 @@
     * polypeptide molecule
     * polymer
     
+## 2019-04-11
+
+* 08-Chado Organism Module - GMOD.pdf
+    * 需要知道 organism 表中各个字段所代表的生物学意义

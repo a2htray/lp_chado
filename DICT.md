@@ -37,6 +37,21 @@
     * [Table `pubauthor`](#table-pubauthor)
     * [Table `pubprop`](#table-pubprop)
     * [Table `pubauthor_contact`](#table-pubauthor_contact)
+* [Module `Organism`](#module-organism)
+    * [Table `organism`](#table-organism)
+    * [Table `organism_dbxref`](#table-organism_dbxref)
+    * [Table `organismprop`](#table-organismprop)
+    * [Table `organismprop_pub`](#table-organismprop_pub)
+    * [Table `organism_pub`](#table-organism_pub)
+    * [Table `organism_cvterm`](#table-organism_cvterm)
+    * [Table `organism_cvtermprop`](#table-organism_cvtermprop)
+    * [Table `organism_relationship`](#table-organism_relationship)
+    * [Function `get_organism_id`](#function-get_organism_id)
+    * [Function `get_organism_id_abbrev`](#function-get_organism_id_abbrev)
+    * [Function `store_organism`](#function-store_organism)
+* [Module `Sequence`](#module-sequence)
+    * [Table `feature`](#table-feature)
+
 
 ### Module `General`
 
@@ -233,7 +248,7 @@ pathdistance | int | - | - |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 cvtermsynonym_id | bigserial | not null primary key | 自增主键 |
-cvterm_id | bigint | not null/foreign key/index | `cvterm.cvterm_id` |
+cvterm_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
 synonym | varchar(1024) | not null | 同义名称 |
 type_id | bigint | foreign key | `cvterm.cvterm_id` |
 
@@ -254,8 +269,8 @@ type_id | bigint | foreign key | `cvterm.cvterm_id` |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 cvterm_dbxref_id | bigserial | not null/primary key | 自增主键 |
-cvterm_id | bigint | not null/foreign key/index | `cvterm.cvterm_id` |
-dbxref_id | bigint | not null/foreign key/index | `dbxref.dbxref_id` |
+cvterm_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
+dbxref_id | bigint | not null/`foreign key`/index | `dbxref.dbxref_id` |
 is_for_definition | int | not null default 0 | - |
 
 <!-- TODO 需要知道 cvterm.definition 与 cvterm_dbxref.is_for_definition 的关系 -->
@@ -274,8 +289,8 @@ is_for_definition | int | not null default 0 | - |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 cvtermprop_id | bigserial | not null/primary key | 自增主键 |
-cvterm_id | bigint | not null/foreign key/index | `cvterm.cvterm_id` |
-type_id | bigint | not null/foreign key/index | `cvterm.cvterm_id` |
+cvterm_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
+type_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
 value | text | not null default '' | - |
 rank | int | not null default 0 | 各个属性的权重 |
 
@@ -293,8 +308,8 @@ rank | int | not null default 0 | 各个属性的权重 |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 dbxrefprop_id | bigserial | not null/primary key | 自增主键 |
-dbxref_id | bigint | not null/foreign key/index | `dbxref.dbxref_id` |
-type_id | bigint | not null/foreign key/index | `cvterm.cvterm_id` |
+dbxref_id | bigint | not null/`foreign key`/index | `dbxref.dbxref_id` |
+type_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
 value | text | not null default '' | - |
 rank | int | not null default 0 | 权重 |
 
@@ -344,8 +359,8 @@ rank | int | not null default 0 | 权重 |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 dbprop_id | bigserial | not null/primary key | 自增主键 |
-db_id | bigint | not null/foreign key/index | `db.db_id` |
-type_id | bigint | not null/foreign key/index | `cvterm.cvterm_id` |
+db_id | bigint | not null/`foreign key`/index | `db.db_id` |
+type_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
 value | text | not null default '' | - |
 rank | int | not null default 0 | 权重 |
 
@@ -482,8 +497,8 @@ description | varchar(255) | null | 描述信息 |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 contactprop_id | bigserial | primary key/not null | - |
-contact_id | bigint | NOT NULL/foreign key/index | 指向 contact 记录 |
-type_id | bigint | NOT NULL/foreign key/index | 属性的类型，`cvterm.cvterm_id` |
+contact_id | bigint | NOT NULL/`foreign key`/index | 指向 contact 记录 |
+type_id | bigint | NOT NULL/`foreign key`/index | 属性的类型，`cvterm.cvterm_id` |
 value | text | - | 具体信息 |
 rank | integer | DEFAULT 0 NOT NULL | 权重、用于排序 |
 
@@ -531,7 +546,7 @@ pyear | varchar(255) | - | 发表的年份 |
 pages | varchar(255) | - | 页码信息 |
 miniref | varchar(255) | - | - |
 uniquename | text | not null/unique - | - |
-type_id | bigint | not null/foreign key/index | 出版物的类型，`cvterm.cvterm_id` |
+type_id | bigint | not null/`foreign key`/index | 出版物的类型，`cvterm.cvterm_id` |
 is_obsolete | boolean | default 'false' | - |
 publisher | varchar(255) | - | 发表人 |
 pubplace | varchar(255) | - | 发表的地方 |
@@ -568,8 +583,8 @@ type_id | bigint | not null/foreign key | `pub.pub_id` |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 pub_dbxref_id | bigserial | not null/primary | - |
-pub_id | bigint | not null/foreign key/index | `pub.pub_id` |
-dbxref_id | bigint | not null/foreign key/index | `dbxref.dbxref_id` |
+pub_id | bigint | not null/`foreign key`/index | `pub.pub_id` |
+dbxref_id | bigint | not null/`foreign key`/index | `dbxref.dbxref_id` |
 is_current | boolean | not null default 'true' | - |
 
 * primary key (pub_dbxref_id),
@@ -602,8 +617,8 @@ suffix | varchar(100) | - | 前缀信息，如 Jr. Sr |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 pubprop_id | bigserial | primary key/not null | - |
-pub_id | bigint | NOT NULL/foreign key/index | 指向 pub 记录，`pub.pub_id` |
-type_id | bigint | NOT NULL/foreign key/index | 属性的类型，`cvterm.cvterm_id` |
+pub_id | bigint | NOT NULL/`foreign key`/index | 指向 pub 记录，`pub.pub_id` |
+type_id | bigint | NOT NULL/`foreign key`/index | 属性的类型，`cvterm.cvterm_id` |
 value | text | - | 具体信息 |
 rank | integer | DEFAULT 0 NOT NULL | 权重、用于排序 |
 
@@ -620,8 +635,8 @@ rank | integer | DEFAULT 0 NOT NULL | 权重、用于排序 |
 Column | Type | Modifiers | Desc |
 ---|---|---|---|
 pubauthor_contact_id | bigserial | primary key NOT NULL | - |
-contact_id | bigint | NOT NULL/foreign key/index | `contact.contact_id` |
-pubauthor_id | bigint | NOT NULL/foreign key/index | `pubauthor.pubauthor_id` |
+contact_id | bigint | NOT NULL/`foreign key`/index | `contact.contact_id` |
+pubauthor_id | bigint | NOT NULL/`foreign key`/index | `pubauthor.pubauthor_id` |
 
 * `CONSTRAINT pubauthor_contact_c1 UNIQUE (contact_id, pubauthor_id)`
 * FOREIGN KEY (pubauthor_id) REFERENCES pubauthor(pubauthor_id) ON DELETE CASCADE
@@ -629,4 +644,193 @@ pubauthor_id | bigint | NOT NULL/foreign key/index | `pubauthor.pubauthor_id` |
 * CREATE INDEX pubauthor_contact_idx1 ON pubauthor USING btree (pubauthor_id)
 * CREATE INDEX pubauthor_contact_idx2 ON contact USING btree (contact_id)
 
+### Module `Organism`
 
+存储物种信息
+
+#### Table `organism`
+
+有机体信息，如玉米
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+organism_id | bigserial | not null/primary key | - |
+abbreviation | varchar(255) | null | - |
+genus | varchar(255) | not null | - |
+species | varchar(255) | not null | 物种信息 |
+common_name | varchar(255) | null | - |
+infraspecific_name | varchar(1024) | null | - |
+type_id | bigint | default null/foreign key | `cvterm.cvterm_id` |
+comment | text | null | - |
+
+* primary key (organism_id),
+* FOREIGN KEY (type_id) REFERENCES cvterm (cvterm_id) ON DELETE CASCADE,
+* `constraint organism_c1 unique (genus,species,type_id,infraspecific_name)`
+
+#### Table `organism_dbxref`
+
+关联表
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+organism_dbxref_id | bigserial | not null/primary key | - |
+organism_id | bigint | not null/foreign key | `organism.organism_id` |
+dbxref_id | bigint | not nullforeign key | `dbxref.dbxref_id` |
+
+* primary key (organism_dbxref_id)
+* foreign key (organism_id) references organism (organism_id) on delete cascade INITIALLY DEFERRED
+* foreign key (dbxref_id) references dbxref (dbxref_id) on delete cascade INITIALLY DEFERRED
+* `constraint organism_dbxref_c1 unique (organism_id,dbxref_id)`
+
+#### Table `organismprop`
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+organismprop_id | bigserial | not null/primary key | - |
+organism_id | bigint | not null/foreign key | `organism.organism_id` |
+type_id | bigint | not null/foreign key | `cvterm.cvterm_id` |
+value | text | null | 值信息 |
+rank | int | not null default 0 | 权重 |
+
+* primary key (organismprop_id)
+* foreign key (organism_id) references organism (organism_id) on delete cascade INITIALLY DEFERRED
+* foreign key (type_id) references cvterm (cvterm_id) on delete cascade INITIALLY DEFERRED
+* `constraint organismprop_c1 unique (organism_id,type_id,rank)`
+* create index organismprop_idx1 on organismprop (organism_id)
+* create index organismprop_idx2 on organismprop (type_id)
+
+#### Table `organismprop_pub`
+
+有关物种属性的出版物
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+organismprop_pub_id | bigserial | not null | - |
+organismprop_id | bigint | not null/`foreign key`/index | `organismprop.organismprop_id` |
+pub_id | bigint | not null/`foreign key`/index | `pub.pub_id` |
+value | text | null | - |
+rank | int | not null default 0 | 权重 |
+
+* primary key (organismprop_pub_id)
+* foreign key (organismprop_id) references organismprop (organismprop_id) on delete cascade INITIALLY DEFERRED
+* foreign key (pub_id) references pub (pub_id) on delete cascade INITIALLY DEFERRED
+* `constraint organismprop_pub_c1 unique (organismprop_id,pub_id)`
+* create index organismprop_pub_idx1 on organismprop_pub (organismprop_id)
+* create index organismprop_pub_idx2 on organismprop_pub (pub_id)
+
+#### Table `organism_pub`
+
+有关品种的出版物
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+organism_pub_id | bigserial | not null/primary key | - |
+organism_id | bigint | not null/`foreign key`/index | `organism.organism_id` |
+pub_id | bigint | not null/`foreign key`/index | `pub.pub_id` |
+
+* primary key (organism_pub_id),
+* foreign key (organism_id) references organism (organism_id) on delete cascade INITIALLY DEFERRED,
+* foreign key (pub_id) references pub (pub_id) on delete cascade INITIALLY DEFERRED,
+* constraint organism_pub_c1 unique (organism_id,pub_id)
+* create index organism_pub_idx1 on organism_pub (organism_id);
+* create index organism_pub_idx2 on organism_pub (pub_id);
+
+#### Table `organism_cvterm`
+
+关联表，organism 和 cvterm 之间的关系表
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+organism_cvterm_id | bigserial | not null/primary key | - |
+organism_id | bigint | not null/`foreign key`/index | `organism.organism_id` |
+cvterm_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
+rank | int | not null default 0 | 权重 |
+pub_id | bigint | not null/`foreign key`/index | `pub.pub_id` | 
+
+* primary key (organism_cvterm_id)
+* foreign key (organism_id) references organism (organism_id) on delete cascade INITIALLY DEFERRED
+* foreign key (cvterm_id) references cvterm (cvterm_id) on delete cascade INITIALLY DEFERRED
+* foreign key (pub_id) references pub (pub_id) on delete cascade INITIALLY DEFERRED
+* `constraint organism_cvterm_c1 unique(organism_id,cvterm_id,pub_id) `
+* create index organism_cvterm_idx1 on organism_cvterm (organism_id)
+* create index organism_cvterm_idx2 on organism_cvterm (cvterm_id)
+
+#### Table `organism_cvtermprop`
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+organism_cvtermprop_id | bigserial | not null |
+organism_cvterm_id | bigint | not null/`foreign key`/index | `organism_cvterm.organism_cvterm_id`
+type_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
+value | text | null | 值信息 |
+rank | int | not null default 0 | 权重 |
+
+* primary key (organism_cvtermprop_id)
+* foreign key (organism_cvterm_id) references organism_cvterm (organism_cvterm_id) on delete cascade
+* foreign key (type_id) references cvterm (cvterm_id) on delete cascade INITIALLY DEFERRED
+* `constraint organism_cvtermprop_c1 unique (organism_cvterm_id,type_id,rank)`
+* create index organism_cvtermprop_idx1 on organism_cvtermprop (organism_cvterm_id)
+* create index organism_cvtermprop_idx2 on organism_cvtermprop (type_id)
+
+#### Table `organism_relationship`
+
+物种与物种之间的分类多种多样; 物种之间的联系表，也是主谓宾
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+organism_relationship_id | bigserial | primary key NOT NULL | - |
+subject_id | bigint | NOT NULL/`foreign key`/index | `organism.organism_id` |
+object_id | bigint | NOT NULL/`foreign key`/index | `organism.organism_id` | 
+type_id | bigint | NOT NULL/`foreign key`/index | `cvterm.cvterm_id` |
+rank | integer | DEFAULT 0 NOT NULL | 权重 |
+
+* `CONSTRAINT organism_relationship_c1 UNIQUE (subject_id, object_id, type_id, rank)`
+* FOREIGN KEY (object_id) REFERENCES organism(organism_id) ON DELETE CASCADE
+* FOREIGN KEY (subject_id) REFERENCES organism(organism_id) ON DELETE CASCADE
+* FOREIGN KEY (type_id) REFERENCES cvterm(cvterm_id) ON DELETE CASCADE
+* CREATE INDEX organism_relationship_idx1 ON organism_relationship USING btree (subject_id)
+* CREATE INDEX organism_relationship_idx2 ON organism_relationship USING btree (object_id)
+* CREATE INDEX organism_relationship_idx3 ON organism_relationship USING btree (type_id)
+
+#### Function `get_organism_id`
+
+通过 `genus` 和 `species` 得到物种记录
+
+#### Function `get_organism_id_abbrev`
+
+#### Function `store_organism`
+
+### * Module `Sequence`
+
+#### Table `feature`
+
+Column | Type | Modifiers | Desc |
+---|---|---|---|
+feature_id | bigserial | not null/primary key | - |
+dbxref_id | bigint| `foreign key`/index | `dbxref.dbxref_id` |
+organism_id | bigint | not null/`foreign key`/index | `organism.organism_id` |
+name | varchar(255) | index | 特性名称，人类可读 |
+uniquename | text | not null | 唯一名称，用于确定特性 |
+residues | text | - | 序列值 |
+seqlen | bigint | - | 序列长度 |
+md5checksum | char(32) | - | md5 值 |
+type_id | bigint | not null/`foreign key`/index | `cvterm.cvterm_id` |
+is_analysis | boolean | not null default 'false' | 用于判断该特性是否已经注释 |
+is_obsolete | boolean | not null default 'false' | - |
+timeaccessioned | timestamp | not null default current_timestamp | - |
+timelastmodified | timestamp | not null default current_timestamp | - |
+
+* primary key (feature_id)
+* foreign key (dbxref_id) references dbxref (dbxref_id) on delete set null INITIALLY DEFERRED
+* foreign key (organism_id) references organism (organism_id) on delete cascade INITIALLY DEFERRED
+* foreign key (type_id) references cvterm (cvterm_id) on delete cascade INITIALLY DEFERRED
+* `constraint feature_c1 unique (organism_id,uniquename,type_id)`
+* create sequence feature_uniquename_seq;
+* create index feature_name_ind1 on feature(name);
+* create index feature_idx1 on feature (dbxref_id);
+* create index feature_idx2 on feature (organism_id);
+* create index feature_idx3 on feature (type_id);
+* create index feature_idx4 on feature (uniquename);
+* create index feature_idx5 on feature (lower(name));
+* create index feature_idx1b on feature (feature_id, dbxref_id) where dbxref_id is not null;
+* ALTER TABLE feature ALTER residues SET STORAGE EXTERNAL;
